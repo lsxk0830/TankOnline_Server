@@ -39,7 +39,7 @@ public class RoomManager
         Room room = new Room()
         {
             RoomID = roomId,
-            mapId = 2,
+            mapId = 1,
         };
         rooms.Add(room.RoomID, room);
         return room;
