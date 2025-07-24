@@ -14,7 +14,7 @@
             NetManager.Send(cs, msg);
             return;
         }
-
+        Console.WriteLine($"玩家：{cs.user.Name} 请求开始战斗");
         Room room = RoomManager.GetRoom(msg.roomID);
 
         if (room == null) // Room是否存在
