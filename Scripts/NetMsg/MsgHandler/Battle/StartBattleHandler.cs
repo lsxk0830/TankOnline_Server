@@ -5,6 +5,7 @@
     /// </summary>
     public static void MsgStartBattle(ClientState cs, MsgBase msgBase)
     {
+        Console.WriteLine($"请求开始战斗");
         MsgStartBattle msg = (MsgStartBattle)msgBase;
 
         if (cs.user == null)
@@ -37,7 +38,6 @@
             return;
         }
         room.status = (int)Room.Status.FIGHT; // 状态设置为战斗中
-        room.CreateRandomObstacle(msg.mapSize, msg.obstacleCount); // 创建随机障碍物
         room.BroadcastExceptCS(cs.user.ID, msg); // 广播开战消息
         UserManager.Send(RoomManager.GetRoomsToMsg());
     }

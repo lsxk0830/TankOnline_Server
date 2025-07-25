@@ -8,17 +8,12 @@ public class MsgFire : MsgBase
         protoName = "MsgFire";
     }
 
-    //炮弹初始位置
+    //炮弹所在位置
     public float x { get; set; } = 0;
 
-    //public float y { get; set; } = 1;
+    public float y { get; set; } = 0;
     public float z { get; set; } = 0;
 
-    //炮弹目标位置
-    public float tx { get; set; } = 0;
-
-    //public float ty { get; set; } = 1;
-    public float tz { get; set; } = 0;
 
     /// <summary>
     /// 哪个坦克开火的

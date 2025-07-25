@@ -322,53 +322,7 @@ public class Room : IDisposable
         Broadcast(msg); // 广播消息
     }
 
-    /// <summary>
-    /// 获取所有障碍物数据信息
-    /// </summary>
-    public MsgObstacleAll GetAllObstacle(MsgObstacleAll msg)
-    {
-        if (obs == null || obs.Count == 0) return null; // 没有障碍物
-        if (msg.PosRotScales == null)
-            msg.PosRotScales = new List<MsgObstacleOne>();
-        else
-            msg.PosRotScales.Clear(); // 清空之前的障碍物数据
-        foreach (var item in obs)
-        {
-            msg.PosRotScales.Add(new MsgObstacleOne() { ObstacleID = item.Key, PosRotScale = item.Value });
-        }
-        return msg;
-    }
-
     #endregion 广播消息、广播开战、广播进入战斗
-
-    /// <summary>
-    /// 创建随机障碍物
-    /// </summary>
-    /// <param name="mapSize">地图的大小</param>
-    /// <param name="obstacleCount">随机物数量</param>
-    public void CreateRandomObstacle(int mapSize, int obstacleCount)
-    {
-        // 创建随机障碍物逻辑
-        Console.WriteLine("创建随机障碍物");
-        Random random = new Random();
-        obs = new Dictionary<int, ObstaclePosRotScale>(obstacleCount);
-        for (int i = 0; i < obstacleCount; i++)
-        {
-            ObstaclePosRotScale posRotScale = new ObstaclePosRotScale()
-            {
-                PosX = random.Next(2, mapSize - 4),
-                ScaleY = random.Next(1, 3),
-                PosZ = random.Next(2, mapSize - 4),
-                RotX = 0,
-                RotY = random.Next(0, 360),
-                RotZ = 0,
-                ScaleX = random.Next(1, 3),
-                ScaleZ = random.Next(1, 3)
-            };
-            posRotScale.PosY = posRotScale.ScaleY / 2;
-            obs.Add(i, posRotScale);
-        }
-    }
 
     /// <summary>
     /// 所有加载完成，准备进入游戏

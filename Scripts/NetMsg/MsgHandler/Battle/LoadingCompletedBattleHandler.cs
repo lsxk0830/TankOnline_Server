@@ -14,6 +14,7 @@
             NetManager.Send(cs, msg);
             return;
         }
+        Console.WriteLine($"用户:{cs.user.Name}战斗加载完成");
 
         Room room = RoomManager.GetRoom(msg.roomID);
 
