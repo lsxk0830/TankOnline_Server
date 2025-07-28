@@ -15,9 +15,6 @@ public partial class MsgHandler
         if (player == null) return;
         if ((Room.Status)room.status != Room.Status.FIGHT) return;
 
-        // 是否作弊
-        if (Math.Abs(player.x - msg.x) > 5 || Math.Abs(player.y - msg.y) > 5 || Math.Abs(player.z - msg.z) > 5)
-            Console.WriteLine($"疑似作弊；{player.ID}");
         // 更新信息
         player.x = msg.x;
         player.y = msg.y;
