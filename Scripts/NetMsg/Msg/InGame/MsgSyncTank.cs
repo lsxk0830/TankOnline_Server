@@ -9,21 +9,21 @@ public class MsgSyncTank : MsgBase
     }
 
     //位置
-    public float x { get; set; } = 0;
+    public int x { get; set; } = 0;
 
-    public float y { get; set; } = 0;
-    public float z { get; set; } = 0;
+    public int y { get; set; } = 0;
+    public int z { get; set; } = 0;
 
     //旋转
-    public float ex { get; set; } = 0;
+    public int ex { get; set; } = 0;
 
-    public float ey { get; set; } = 0;
-    public float ez { get; set; } = 0;
+    public int ey { get; set; } = 0;
+    public int ez { get; set; } = 0;
 
     /// <summary>
     /// 炮塔旋转.y
     /// </summary>
-    public float turretY { get; set; } = 0;
+    public int turretY { get; set; } = 0;
 
     /// <summary>
     /// 服务端补充，哪个坦克

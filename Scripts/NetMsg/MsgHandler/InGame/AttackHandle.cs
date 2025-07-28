@@ -3,7 +3,7 @@ using System;
 public partial class MsgHandler
 {
     private const int damagePerHit = 35; // 每次击中造成的伤害
-
+    public const int scale = 10000; // 客户端同比例缩放
     /// <summary>
     /// 击中协议
     /// </summary>
@@ -25,9 +25,9 @@ public partial class MsgHandler
         }
         else
         {
-            Vector3D start = new Vector3D(msg.x, msg.y, msg.z);
-            Vector3D direction = new Vector3D(msg.fx, msg.fy, msg.fz);
-            Vector3D end = new Vector3D(msg.tx, msg.ty, msg.tz);
+            Vector3D start = new Vector3D(msg.x / scale, msg.y / scale, msg.z / scale);
+            Vector3D direction = new Vector3D(msg.fx / scale, msg.fy / scale, msg.fz / scale);
+            Vector3D end = new Vector3D(msg.tx / scale, msg.ty / scale, msg.tz / scale);
             // 计算起点到终点的向量
             Vector3D toEnd = end - start;
             // 归一化方向向量
@@ -39,6 +39,7 @@ public partial class MsgHandler
             Console.WriteLine($"值:{crossMagnitudeSq},1e-3:{1e-3}");
             if (crossMagnitudeSq < 1e-3 * 1e-3)
             {
+                msg.fx = 0; msg.fy = 0; msg.fz = 0;
                 msg.isHit = true;
                 hitPlayer.hp -= damagePerHit;
                 msg.hp = hitPlayer.hp;
@@ -71,6 +72,7 @@ public partial class MsgHandler
                         }
                         DbManager.BatchUpdateUsers(users);
                         RoomManager.RemoveRoom(user.RoomID);
+                        return;
                     }
                 }
             }

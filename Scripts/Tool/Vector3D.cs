@@ -1,10 +1,10 @@
 ﻿public struct Vector3D
 {
-    public double X { get; set; }
-    public double Y { get; set; }
-    public double Z { get; set; }
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
 
-    public Vector3D(double x, double y, double z) => (X, Y, Z) = (x, y, z);
+    public Vector3D(float x, float y, float z) => (X, Y, Z) = (x, y, z);
 
     // 向量减法
     public static Vector3D operator -(Vector3D a, Vector3D b) =>
@@ -29,7 +29,7 @@
     // 归一化（单位向量）
     public Vector3D Normalize()
     {
-        double mag = Magnitude();
+        float mag = (float)Magnitude();
         if (mag < 1e-9) throw new ArgumentException("零向量无法归一化");
         return new Vector3D(X / mag, Y / mag, Z / mag);
     }
