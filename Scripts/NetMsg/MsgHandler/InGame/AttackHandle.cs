@@ -25,25 +25,25 @@ public partial class MsgHandler
         }
         else
         {
-            // 计算两个向量：起点到方向点，起点到击中点
-            float vx = msg.fx - msg.x, vy = msg.fy - msg.y, vz = msg.fz - msg.z;
-            float wx = msg.tx - msg.x, wy = msg.ty - msg.y, wz = msg.tz - msg.z;
-
-            // 计算叉积
-            float crossX = vy * wz - vz * wy;
-            float crossY = vz * wx - vx * wz;
-            float crossZ = vx * wy - vy * wx;
-
-            // 计算叉积的模长平方（避免开平方运算）
-            float crossMagnitudeSquared = crossX * crossX + crossY * crossY + crossZ * crossZ;
-
-            if (crossMagnitudeSquared < 1e-4f * 1e-4f)
+            Vector3D start = new Vector3D(msg.x, msg.y, msg.z);
+            Vector3D direction = new Vector3D(msg.fx, msg.fy, msg.fz);
+            Vector3D end = new Vector3D(msg.tx, msg.ty, msg.tz);
+            // 计算起点到终点的向量
+            Vector3D toEnd = end - start;
+            // 归一化方向向量
+            Vector3D dirNormalized = direction.Normalize();
+            // 计算叉积：若终点在直线上，叉积应为零向量
+            Vector3D cross = Vector3D.Cross(toEnd, dirNormalized);
+            double crossMagnitudeSq = cross.X * cross.X + cross.Y * cross.Y + cross.Z * cross.Z;
+            // 判断平行性（考虑浮点误差）
+            Console.WriteLine($"值:{crossMagnitudeSq},1e-3:{1e-3}");
+            if (crossMagnitudeSq < 1e-3 * 1e-3)
             {
                 msg.isHit = true;
                 hitPlayer.hp -= damagePerHit;
                 msg.hp = hitPlayer.hp;
                 msg.damage = damagePerHit;
-                
+
                 Console.WriteLine($"击中协议:{msg.hp}");
 
                 if (hitPlayer.hp <= 0)
@@ -78,7 +78,7 @@ public partial class MsgHandler
             {
                 msg.isHit = false;
             }
-            room.Broadcast(msg);// 广播
         }
+        room.Broadcast(msg);// 广播
     }
 }
