@@ -1,14 +1,13 @@
-using System;
-
 public partial class MsgHandler
 {
     private const int damagePerHit = 35; // 每次击中造成的伤害
-    public const int scale = 10000; // 客户端同比例缩放
+
     /// <summary>
     /// 击中协议
     /// </summary>
     public static void MsgAttack(ClientState cs, MsgBase msgBase)
     {
+        Console.WriteLine($"攻击协议");
         MsgAttack msg = (MsgAttack)msgBase;
 
         User? user = cs.user;
@@ -18,26 +17,45 @@ public partial class MsgHandler
         Player? hitPlayer = room.GetPlayer(msg.hitID);// 被击中者
         if ((Room.Status)room.status != Room.Status.FIGHT) return;
 
-        Console.WriteLine($"攻击协议");
-        if ((msg.fx == 0 && msg.fy == 0 && msg.fz == 0 && msg.tx == 0 && msg.ty == 0 && msg.tz == 0) || hitPlayer == null)
+        if ((msg.fx == 0 && msg.fy == 0 && msg.fz == 0) || hitPlayer == null)
         {
             msg.isHit = false;
         }
         else
         {
-            Vector3D start = new Vector3D(msg.x / scale, msg.y / scale, msg.z / scale);
-            Vector3D direction = new Vector3D(msg.fx / scale, msg.fy / scale, msg.fz / scale);
-            Vector3D end = new Vector3D(msg.tx / scale, msg.ty / scale, msg.tz / scale);
-            // 计算起点到终点的向量
-            Vector3D toEnd = end - start;
-            // 归一化方向向量
-            Vector3D dirNormalized = direction.Normalize();
-            // 计算叉积：若终点在直线上，叉积应为零向量
-            Vector3D cross = Vector3D.Cross(toEnd, dirNormalized);
-            double crossMagnitudeSq = cross.X * cross.X + cross.Y * cross.Y + cross.Z * cross.Z;
-            // 判断平行性（考虑浮点误差）
-            Console.WriteLine($"值:{crossMagnitudeSq},1e-3:{1e-3}");
-            if (crossMagnitudeSq < 1e-3 * 1e-3)
+            // 计算向量
+            int dx = msg.tx - msg.x;
+            int dy = msg.ty - msg.y;
+            int dz = msg.tz - msg.z;
+
+            // 计算三个方向的交叉乘积
+            long crossXY = (long)dx * msg.fy - (long)dy * msg.fx; // long ：dx * fz可能超过int.MaxValue
+            long crossYZ = (long)dy * msg.fz - (long)dz * msg.fy;
+            long crossXZ = (long)dx * msg.fz - (long)dz * msg.fx;
+
+            // 计算最大可能的误差范围（1%容忍度）
+            long toleranceXY = Math.Max(Math.Abs((long)dx * msg.fy), Math.Abs((long)dy * msg.fx)) / 100;
+            long toleranceYZ = Math.Max(Math.Abs((long)dy * msg.fz), Math.Abs((long)dz * msg.fy)) / 100;
+            long toleranceXZ = Math.Max(Math.Abs((long)dx * msg.fz), Math.Abs((long)dz * msg.fx)) / 100;
+
+            // 判断是否在容忍范围内
+            bool isCollinear = Math.Abs(crossXY) <= toleranceXY &&
+                           Math.Abs(crossYZ) <= toleranceYZ &&
+                           Math.Abs(crossXZ) <= toleranceXZ;
+
+            // 检查方向是否一致（避免反向命中）
+            bool isSameDirection = (dx * msg.fx + dy * msg.fy + dz * msg.fz) > 0;
+            //Console.WriteLine($"dx={dx}, dy={dy}, dz={dz}");
+            //Console.WriteLine($"fx={msg.fx}, fy={msg.fy}, fz={msg.fz}");
+            //Console.WriteLine($"dx*fy={dx * msg.fy}, dy*fx={dy * msg.fx}");
+            //Console.WriteLine($"dy*fz={dy * msg.fz}, dz*fy={dz * msg.fy}");
+            //Console.WriteLine($"dx*fz={dx * msg.fz}, dz*fx={dz * msg.fx}");
+            //Console.WriteLine($"isCollinear:{isCollinear},isSameDirection:{isSameDirection}");
+            // 检查共线性
+            //const double tolerance = 1e-4;
+            //bool isCollinear = Math.Abs(dx - msg.fx * ratio) < tolerance && Math.Abs(dy - msg.fy * ratio) < tolerance && Math.Abs(dz - msg.fz * ratio) < tolerance;
+            //Console.WriteLine($"ratio:{ratio},{Math.Abs(dx - msg.fx * ratio)},{Math.Abs(dy - msg.fy * ratio)},{Math.Abs(dz - msg.fz * ratio)}");
+            if (isSameDirection && isCollinear)
             {
                 msg.fx = 0; msg.fy = 0; msg.fz = 0;
                 msg.isHit = true;
