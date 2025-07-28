@@ -9,19 +9,19 @@ public class MsgAttack : MsgBase
     }
 
     //炮弹初始位置
-    public float x { get; set; } = 0;
-    public float y { get; set; } = 0;
-    public float z { get; set; } = 0;
+    public int x { get; set; } = 0;
+    public int y { get; set; } = 0;
+    public int z { get; set; } = 0;
 
     //炮弹方向
-    public float fx { get; set; } = 0;
-    public float fy { get; set; } = 0;
-    public float fz { get; set; } = 0;
+    public int fx { get; set; } = 0;
+    public int fy { get; set; } = 0;
+    public int fz { get; set; } = 0;
 
     //击中点位置
-    public float tx { get; set; } = 0;
-    public float ty { get; set; } = 0;
-    public float tz { get; set; } = 0;
+    public int tx { get; set; } = 0;
+    public int ty { get; set; } = 0;
+    public int tz { get; set; } = 0;
 
     /// <summary>
     /// 哪个坦克开火的
