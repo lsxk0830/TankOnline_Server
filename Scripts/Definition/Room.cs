@@ -18,7 +18,7 @@ public class Room : IDisposable
     /// <summary>
     /// 最大玩家数
     /// </summary>
-    public int maxPlayer = 6;
+    public int maxPlayer = 16;
 
     /// <summary>
     /// 玩家列表
