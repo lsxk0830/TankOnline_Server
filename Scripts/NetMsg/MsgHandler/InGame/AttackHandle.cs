@@ -16,7 +16,8 @@ public partial class MsgHandler
         if (room == null) return;
         Player? hitPlayer = room.GetPlayer(msg.hitID);// 被击中者
         if ((Room.Status)room.status != Room.Status.FIGHT) return;
-
+            
+        /*
         if ((msg.fx == 0 && msg.fy == 0 && msg.fz == 0) || hitPlayer == null)
         {
             msg.isHit = false;
@@ -99,6 +100,8 @@ public partial class MsgHandler
                 msg.isHit = false;
             }
         }
+        */
+        
         room.Broadcast(msg);// 广播
     }
 }
