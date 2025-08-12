@@ -15,6 +15,7 @@ public partial class MsgHandler
         Room room = RoomManager.GetRoom(user.RoomID);
         if (room == null) return;
         Player? hitPlayer = room.GetPlayer(msg.hitID);// 被击中者
+        if(hitPlayer == null) return;
         if ((Room.Status)room.status != Room.Status.FIGHT) return;
             
         /*
@@ -101,7 +102,44 @@ public partial class MsgHandler
             }
         }
         */
-        
+        if(msg.isHit)
+        {
+            msg.fx = 0; msg.fy = 0; msg.fz = 0;
+            hitPlayer.hp -= damagePerHit;
+            msg.hp = hitPlayer.hp;
+            msg.damage = damagePerHit;
+
+            Console.WriteLine($"击中协议:{msg.hp}");
+
+            if (hitPlayer.hp <= 0)
+            {
+                int winCamp = room.Judgment(hitPlayer.camp, hitPlayer.ID);
+                if (winCamp != 0)
+                {
+                    // 游戏结束
+                    Console.WriteLine($"发送游戏结束协议,删除房间:{user.RoomID}");
+                    room.Broadcast(new MsgEndBattle()
+                    {
+                        winCamp = winCamp
+                    });
+                    // 更新数据库
+                    List<User> users = new List<User>(room.playerIds.Count);
+                    foreach (var player in room.playerIds)
+                    {
+                        User? playerUser = UserManager.GetUser(player.Key);
+                        if (playerUser == null) continue;
+                        if (player.Value.camp == winCamp)
+                            playerUser.Win++;
+                        else
+                            playerUser.Lost++;
+                        users.Add(playerUser);
+                    }
+                    DbManager.BatchUpdateUsers(users);
+                    RoomManager.RemoveRoom(user.RoomID);
+                    return;
+                }
+            }
+        }
         room.Broadcast(msg);// 广播
     }
 }
