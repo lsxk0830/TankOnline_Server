@@ -28,7 +28,7 @@ public static partial class AuthController
 #endif
         await File.WriteAllBytesAsync(localPath, request.avatarBytes);
         user.AvatarPath = path;
-        bool result = DbManager.UpdateUser(user); //数据库更新
+        bool result = DbManager.UpdateAvatar(user); //数据库更新
 
         if (result)
         {

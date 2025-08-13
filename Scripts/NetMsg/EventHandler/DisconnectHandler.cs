@@ -16,7 +16,7 @@ public partial class EventHandler
                 if (room.status == (int)Room.Status.FIGHT)
                 {
                     cs.user.Lost++;
-                    DbManager.UpdateUser(cs.user);
+                    DbManager.UpdateDisconnect(cs.user);
                 }
                 Console.WriteLine($"用户:{cs.user.Name}离开房间:{cs.user.RoomID}");
             }

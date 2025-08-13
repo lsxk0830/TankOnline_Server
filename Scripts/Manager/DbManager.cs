@@ -59,6 +59,8 @@ public class DbManager
                 AvatarPath VARCHAR(255)  NOT NULL COMMENT'默认头像路径',
                 CreateTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT'创建用户时间',
                 LastLogin TIMESTAMP NULL COMMENT'上次登录时间',
+                LastSignIn TIMESTAMP NULL COMMENT'上次签到时间',
+                ContinuousSignIn INT UNSIGNED DEFAULT 0  COMMENT'连续签到天数',
                 INDEX idx_coin (Coin),
                 INDEX idx_diamond (Diamond)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
@@ -122,7 +124,8 @@ public class DbManager
         const string sql = @"
             SELECT
                 ID, Name, Coin, Diamond,
-                Win, Lost, AvatarPath, CreateTime, LastLogin
+                Win, Lost, AvatarPath, CreateTime, LastLogin,
+                LastSignIn,ContinuousSignIn
             FROM Account
             WHERE Name = @name
               AND PW = SHA2(@password, 256);";
@@ -151,7 +154,9 @@ public class DbManager
                             Lost = reader.GetInt32("Lost"),
                             AvatarPath = reader.GetString("AvatarPath"),
                             CreateTime = reader.GetDateTime("CreateTime"),
-                            LastLogin = DateTime.Now
+                            LastLogin = DateTime.Now,
+                            LastSignIn = reader.IsDBNull(reader.GetOrdinal("LastSignIn")) ? DateTime.MinValue : reader.GetDateTime("LastSignIn"),
+                            ContinuousSignIn = reader.GetInt32("ContinuousSignIn")
                         };
                     }
                 }
@@ -197,19 +202,72 @@ public class DbManager
     }
 
     /// <summary>
-    /// 更新用户数据（线程安全）
+    /// 更新最后登录时间数据（线程安全）
     /// </summary>
-    public static bool UpdateUser(User user)
+    public static bool UpdateDisconnect(User user)
+    {
+        const string sql = @"
+            UPDATE Account
+            SET
+                LastLogin = CURRENT_TIMESTAMP
+            WHERE ID = @ID;";
+
+        try
+        {
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open(); // 确保连接已打开
+            using var cmd = new MySqlCommand(sql, connection);
+            cmd.Parameters.AddWithValue("@ID", user.ID);
+
+            return cmd.ExecuteNonQuery() > 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"更新失败: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 更新头像数据（线程安全）
+    /// </summary>
+    public static bool UpdateAvatar(User user)
+    {
+        const string sql = @"
+            UPDATE Account
+            SET
+                AvatarPath = @avatar
+            WHERE ID = @ID;";
+
+        try
+        {
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open(); // 确保连接已打开
+            using var cmd = new MySqlCommand(sql, connection);
+            cmd.Parameters.AddWithValue("@ID", user.ID);
+            cmd.Parameters.AddWithValue("@avatar", user.AvatarPath);
+
+            return cmd.ExecuteNonQuery() > 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"更新失败: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 更新用户签到数据
+    /// </summary>
+    public static bool UpdateSignIn(User user)
     {
         const string sql = @"
             UPDATE Account
             SET
                 Coin = @coin,
                 Diamond = @diamond,
-                Win = @win,
-                Lost = @lost,
-                AvatarPath = @avatar,
-                LastLogin = CURRENT_TIMESTAMP
+                LastSignIn = @lastSignIn,
+                ContinuousSignIn = @continuousSignIn
             WHERE ID = @ID;";
 
         try
@@ -220,9 +278,8 @@ public class DbManager
             cmd.Parameters.AddWithValue("@ID", user.ID);
             cmd.Parameters.AddWithValue("@coin", user.Coin);
             cmd.Parameters.AddWithValue("@diamond", user.Diamond);
-            cmd.Parameters.AddWithValue("@win", user.Win);
-            cmd.Parameters.AddWithValue("@lost", user.Lost);
-            cmd.Parameters.AddWithValue("@avatar", user.AvatarPath);
+            cmd.Parameters.AddWithValue("@lastSignIn", user.LastSignIn);
+            cmd.Parameters.AddWithValue("@continuousSignIn", user.ContinuousSignIn);
 
             return cmd.ExecuteNonQuery() > 0;
         }
@@ -244,8 +301,7 @@ public class DbManager
             Diamond = @diamond,
             Win = @win,
             Lost = @lost,
-            AvatarPath = @avatar,
-            LastLogin = CURRENT_TIMESTAMP
+            AvatarPath = @avatar
         WHERE ID = @ID;";
 
         using var connection = new MySqlConnection(connectionString);

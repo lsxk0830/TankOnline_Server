@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 /// <summary>
@@ -26,6 +27,7 @@ public class User
     /// 密码
     /// </summary>
     [MaxLength(64)]
+    [JsonIgnore]
     public string PW { get; set; }
 
     /// <summary>
@@ -57,10 +59,24 @@ public class User
     /// <summary>
     /// 创建账户时间
     /// </summary>
+    [JsonIgnore]
     public DateTime CreateTime { get; set; }
 
     /// <summary>
     /// 上次登录时间
     /// </summary>
-    public DateTime? LastLogin { get; set; }
+    [JsonIgnore]
+    public DateTime LastLogin { get; set; }
+
+    /// <summary>
+    /// 上次签到时间
+    /// </summary>
+    [JsonIgnore]
+    public DateTime LastSignIn { get; set; }
+
+    /// <summary>
+    /// 连续签到天数
+    /// </summary>
+    [JsonIgnore]
+    public int ContinuousSignIn { get; set; }
 }
